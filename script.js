@@ -15,13 +15,13 @@ var MovieFinder = function (_React$Component) {
         var _this = _possibleConstructorReturn(this, (MovieFinder.__proto__ || Object.getPrototypeOf(MovieFinder)).call(this, props));
 
         _this.state = {
-            searchTerm: "",
+            searchTerm: '',
             results: [],
             error: ""
         };
 
         _this.handleChange = _this.handleChange.bind(_this);
-        _this.handleSubmit = _this.handleSubmit.bind(_this);
+        _this.submitHandle = _this.submitHandle.bind(_this);
         return _this;
     }
 
@@ -31,26 +31,29 @@ var MovieFinder = function (_React$Component) {
             this.setState({ searchTerm: event.target.value });
         }
     }, {
-        key: "handleSubmit",
-        value: function handleSubmit(event) {
+        key: "submitHandle",
+        value: function submitHandle(event) {
             var _this2 = this;
 
             event.preventDefault();
-            var searchTerm = this.state.searchTerm;
+            var _state = this.state,
+                searchTerm = _state.searchTerm,
+                results = _state.results,
+                error = _state.error;
 
             searchTerm = searchTerm.trim();
             if (!searchTerm) {
-
+                // to check if the searchTerm on the state is empty, if its empty this condition will trigger and will have an early return.
                 return;
             }
 
-            fetch("https://www.omdbapi.com/?s=" + searchTerm + "&apikey=cb585ed6").then(checkStatus).then(json).then(function (data) {
-                if (data.Response === 'False') {
+            fetch("https://www.omdbapi.com/?s=" + searchTerm + "&apikey=cb585ed6").then(checkResponse).then(json).then(function (data) {
+                console.log(data);
+                if (data.Response === "False") {
                     throw new Error(data.Error);
                 }
-
                 if (data.Response === 'True' && data.Search) {
-                    _this2.setState({ results: data.Search, error: '' });
+                    _this2.setState({ results: data.Search, error: "" });
                 }
             }).catch(function (error) {
                 _this2.setState({ error: error.message });
@@ -60,10 +63,10 @@ var MovieFinder = function (_React$Component) {
     }, {
         key: "render",
         value: function render() {
-            var _state = this.state,
-                searchTerm = _state.searchTerm,
-                results = _state.results,
-                error = _state.error;
+            var _state2 = this.state,
+                searchTerm = _state2.searchTerm,
+                results = _state2.results,
+                error = _state2.error;
 
 
             return React.createElement(
@@ -71,18 +74,27 @@ var MovieFinder = function (_React$Component) {
                 { className: "container" },
                 React.createElement(
                     "div",
-                    { className: "row" },
+                    { className: "row overflow" },
                     React.createElement(
                         "div",
-                        { className: "col-12" },
+                        { className: "col-12 col-sm-6" },
                         React.createElement(
-                            "form",
-                            { onSubmit: this.handleSubmit, className: "form-inline my-4" },
-                            React.createElement("input", { type: "text", onChange: this.handleChange, className: "form-control mr-sm-2", placeholder: "Frozen", value: searchTerm }),
+                            "div",
+                            { className: "mx-auto", style: { width: '200px' } },
                             React.createElement(
-                                "button",
-                                { className: "btn btn-primary", type: "submit" },
-                                "Submit"
+                                "form",
+                                { className: "my-5", onSubmit: this.submitHandle },
+                                React.createElement(
+                                    "p",
+                                    null,
+                                    "Results with"
+                                ),
+                                React.createElement("input", { className: "form-control mr-sm-2", placeholder: "Movie Title", type: "text", value: searchTerm, onChange: this.handleChange }),
+                                React.createElement(
+                                    "button",
+                                    { type: "submit", className: "btn btn-success" },
+                                    "Search Movie"
+                                )
                             )
                         ),
                         function () {
@@ -103,7 +115,17 @@ var MovieFinder = function (_React$Component) {
     return MovieFinder;
 }(React.Component);
 
-;
+var checkResponse = function checkResponse(response) {
+    if (response.ok) {
+        return response;
+    }
+
+    throw new Error('Error is either 404 or 500');
+};
+
+var json = function json(response) {
+    return response.json();
+};
 
 var Movie = function Movie(props) {
     var _props$movie = props.movie,
@@ -119,7 +141,7 @@ var Movie = function Movie(props) {
         { className: "row" },
         React.createElement(
             "div",
-            { className: "col-4 col-md-3 mb-3" },
+            { className: "col-12 col-sm-6" },
             React.createElement(
                 "a",
                 { href: "https://www.imdb.com/title/" + imdbID + "/", target: "_blank" },
@@ -128,47 +150,38 @@ var Movie = function Movie(props) {
         ),
         React.createElement(
             "div",
-            { className: "col-8 col-md-9 mb-3" },
+            { className: "row" },
             React.createElement(
                 "a",
-                { href: "https://www.imdb.com/title/" + imdbID + "/", target: "_blank" },
+                { href: "https://www.imdb.com/title/" + imdbID + "/" },
                 React.createElement(
-                    "h4",
-                    null,
+                    "h3",
+                    { className: "text-center" },
                     Title
                 ),
                 React.createElement(
                     "p",
                     null,
+                    "Type: ",
                     Type,
-                    " | ",
+                    " | Year: ",
                     Year
                 )
             )
-        )
+        ),
+        React.createElement("hr", null)
     );
-};
-
-var checkStatus = function checkStatus(response) {
-    if (response.ok) {
-        // .ok returns true if response status is 200-299
-        return response;
-    }
-    throw new Error('Request was either a 404 or 500');
-};
-
-var json = function json(response) {
-    return response.json();
 };
 
 var Footer = function Footer() {
     return React.createElement(
         "div",
         { className: "py-2 my-4 text-center" },
+        React.createElement("hr", null),
         React.createElement(
             "span",
-            null,
-            "ReactJs practice by:"
+            { style: { color: 'white' } },
+            "Built by:"
         ),
         React.createElement(
             "p",
@@ -180,9 +193,54 @@ var Footer = function Footer() {
             ),
             React.createElement("br", null),
             "2022"
+        ),
+        React.createElement(
+            "p",
+            { style: { position: 'relative' } },
+            "Movie API powered by ",
+            React.createElement(
+                "a",
+                { href: "https://omdbapi.com/", target: "_blank",
+                    rel: "noopener noreferrer" },
+                " www.omdbapi.com"
+            )
         )
     );
 };
 
-ReactDOM.render(React.createElement(MovieFinder, null), document.getElementById('root'));
-ReactDOM.render(React.createElement(Footer, null), document.getElementById('footer'));
+var Navbar = function Navbar() {
+    return React.createElement(
+        "nav",
+        { className: "navbar navbar-light fixed-top" },
+        React.createElement(
+            "a",
+            { className: "navbar-brand", href: "#" },
+            "Ishoboy Movie Finder\uD83C\uDFA5"
+        )
+    );
+};
+
+var Template = function Template(props) {
+    return React.createElement(
+        React.Fragment,
+        null,
+        React.createElement(Navbar, null),
+        React.createElement(
+            "div",
+            { className: "container py-4" },
+            React.createElement(
+                "div",
+                { className: "row" },
+                React.createElement(
+                    "div",
+                    { className: "col-12 col-md-9" },
+                    React.createElement(MovieFinder, null),
+                    props.children
+                )
+            )
+        ),
+        React.createElement(Footer, null)
+    );
+};
+
+ReactDOM.render(React.createElement(Template, null), document.getElementById('root'));

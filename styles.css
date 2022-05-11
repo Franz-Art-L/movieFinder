@@ -1,0 +1,26 @@
+body {
+    overflow-x: hidden;
+}
+
+img {
+    width: 100%;
+    max-width: 200px;
+}
+
+body {
+    background-image: url(images/movietime.jpeg);
+    background-repeat: repeat;
+}
+
+p {
+    color: white;
+}
+
+hr {
+    background-color: white;
+    width: 35%;
+}
+
+nav {
+    background-color: #e3f2fd
+}
